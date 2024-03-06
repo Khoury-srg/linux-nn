@@ -144,21 +144,21 @@ file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping)
 }
 EXPORT_SYMBOL_GPL(file_ra_state_init);
 
-static struct bpf_fs_readahead_ops *bpf_fs_ra_ops;
+static struct bpf_fs_ra_ops *custom_bpf_fs_ra_ops;
 
-int bpf_fs_ra_register(struct bpf_fs_readahead_ops *ops)
+int bpf_mm_fs_ra_set(struct bpf_fs_ra_ops *ops)
 {
-	if (bpf_fs_ra_ops)
+	if (custom_bpf_fs_ra_ops)
 		return -EBUSY;
 
-	bpf_fs_ra_ops = ops;
+	custom_bpf_fs_ra_ops = ops;
 	return 0;
 }
 
-void bpf_fs_ra_unregister(struct bpf_fs_readahead_ops *ops)
+void bpf_mm_fs_ra_unset(struct bpf_fs_ra_ops *ops)
 {
-	if (bpf_fs_ra_ops == ops)
-		bpf_fs_ra_ops = NULL;
+	if (custom_bpf_fs_ra_ops == ops)
+		custom_bpf_fs_ra_ops = NULL;
 }
 
 /*
@@ -184,8 +184,8 @@ static void read_pages(struct readahead_control *rac)
 	// determine readahead
 	// 2. Here, where they both converge after determining readahead.
 	// Not sure which is better, so I'm leaving it here for now
-	if (bpf_fs_ra_ops) {
-		struct bpf_fs_readahead_state state = {
+	if (custom_bpf_fs_ra_ops) {
+		struct bpf_fs_ra_state state = {
 			.i_ino = rac->mapping->host->i_ino,
 			.size = rac->ra->size,
 			.async_size = rac->ra->async_size,
@@ -194,8 +194,9 @@ static void read_pages(struct readahead_control *rac)
 			.prev_pos = rac->ra->prev_pos,
 		};
 
-		rac->ra->ra_pages = bpf_fs_ra_ops->get_max_ra(&state);
-		// rac->ra->size = bpf_fs_ra_ops->get_ra(&state);
+		int bpf_val = custom_bpf_fs_ra_ops->get_max_ra(&state);
+		if(bpf_val > 0)
+			rac->ra->ra_pages = bpf_val;
 	}
 
 	if (aops->readahead) {

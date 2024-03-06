@@ -1801,24 +1801,25 @@ struct bpf_dummy_ops {
 
 // KNN: put it here for now for lack of a better place
 
-struct bpf_fs_readahead_state {
+struct bpf_fs_ra_state {
 	int i_ino;
-	unsigned int size;
-	unsigned int async_size;
-	unsigned int ra_pages;
-	unsigned int mmap_miss;
-	loff_t prev_pos;
+	unsigned int size; // sync size
+	unsigned int async_size; // readahead size
+	unsigned int ra_pages; // max readahead size
+	unsigned int mmap_miss; // % of missed in mmap
+	loff_t prev_pos; // previous file offset
+	pgoff_t prev_pgoff; // previous page offset
 };
 
-struct bpf_fs_readahead_ops {
-	int (*get_max_ra)(struct bpf_fs_readahead_state *cb);
-	int (*get_ra)(struct bpf_fs_readahead_state *cb);
+struct bpf_fs_ra_ops {
+	int (*get_max_ra)(struct bpf_fs_ra_state *cb);
+	int (*get_ra)(struct bpf_fs_ra_state *cb);
 };
 
 // temporarily globals as we get this working
 
-int bpf_fs_ra_register(struct bpf_fs_readahead_ops *ops);
-void bpf_fs_ra_unregister(struct bpf_fs_readahead_ops *ops);
+int bpf_mm_fs_ra_set(struct bpf_fs_ra_ops *ops);
+void bpf_mm_fs_ra_unset(struct bpf_fs_ra_ops *ops);
 
 int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
 			    union bpf_attr __user *uattr);
