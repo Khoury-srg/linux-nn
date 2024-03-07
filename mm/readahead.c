@@ -187,7 +187,8 @@ static void read_pages(struct readahead_control *rac)
 	if (custom_bpf_fs_ra_ops) {
 		struct bpf_fs_ra_state state = {
 			.i_ino = rac->mapping->host->i_ino,
-			.size = rac->ra->size,
+			.index = readahead_index(rac),
+			.size = readahead_count(rac),
 			.async_size = rac->ra->async_size,
 			.ra_pages = rac->ra->ra_pages,
 			.mmap_miss = rac->ra->mmap_miss,
