@@ -91,10 +91,10 @@ static int bpf_fs_ra_init_member(const struct btf_type *t,
 
 static int bpf_fs_ra_init(struct btf *btf)
 {
-	bpf_fs_ra_ops_id = btf_find_by_name_kind(btf, "bpf_fs_readahead_ops",
+	bpf_fs_ra_ops_id = btf_find_by_name_kind(btf, "bpf_fs_ra_ops",
 						 BTF_KIND_STRUCT);
 	bpf_fs_ra_state_id = btf_find_by_name_kind(
-		btf, "bpf_fs_readahead_state", BTF_KIND_STRUCT);
+		btf, "bpf_fs_ra_state", BTF_KIND_STRUCT);
 
 	bpf_fs_ra_btf = btf;
 

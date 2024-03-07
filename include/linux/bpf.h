@@ -1803,12 +1803,12 @@ struct bpf_dummy_ops {
 
 struct bpf_fs_ra_state {
 	int i_ino;
-	unsigned int size; // sync size
-	unsigned int async_size; // readahead size
-	unsigned int ra_pages; // max readahead size
+	pgoff_t index; 		// page index
+	unsigned int size; 	// sync size
+	unsigned int async_size; // readahead size in pages
+	unsigned int ra_pages; 	// max readahead size
 	unsigned int mmap_miss; // % of missed in mmap
-	loff_t prev_pos; // previous file offset
-	pgoff_t prev_pgoff; // previous page offset
+	loff_t prev_pos; 	// previous file offset
 };
 
 struct bpf_fs_ra_ops {
