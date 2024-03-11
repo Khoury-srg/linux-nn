@@ -346,10 +346,10 @@ enum {
 	 */
 	INSN_F_FRAMENO_MASK = 0x7, /* 3 bits */
 
-	INSN_F_SPI_MASK = 0x3f, /* 6 bits */
+	INSN_F_SPI_MASK = 0xff, /* 8 bits */
 	INSN_F_SPI_SHIFT = 3, /* shifted 3 bits to the left */
 
-	INSN_F_STACK_ACCESS = BIT(9), /* we need 10 bits total */
+	INSN_F_STACK_ACCESS = BIT(11), /* we need 12 bits total */
 };
 
 static_assert(INSN_F_FRAMENO_MASK + 1 >= MAX_CALL_FRAMES);

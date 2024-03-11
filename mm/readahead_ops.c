@@ -53,6 +53,7 @@ static int fs_readahead_btf_struct_access(struct bpf_verifier_log *log,
 					  const struct bpf_reg_state *reg,
 					  int off, int size)
 {
+	// this is where we check access to bpf_fs_ra_state
 	return 0;
 }
 

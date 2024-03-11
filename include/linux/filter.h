@@ -87,7 +87,7 @@ struct ctl_table_header;
 #define BPF_SYM_ELF_TYPE	't'
 
 /* BPF program can access up to 512 bytes of stack space. */
-#define MAX_BPF_STACK	512
+#define MAX_BPF_STACK	2048
 
 /* Helper macros for filter block array initializers. */
 
