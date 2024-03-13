@@ -1,3 +1,4 @@
+#include "linux/bpf.h"
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/bpf_verifier.h>
@@ -32,7 +33,12 @@ static const struct bpf_func_proto *
 bpf_fs_readahead_get_func_proto(enum bpf_func_id func_id,
 				const struct bpf_prog *prog)
 {
-	return bpf_base_func_proto(func_id, prog);
+	switch (func_id) {
+	case BPF_FUNC_get_current_pid_tgid:
+		return &bpf_get_current_pid_tgid_proto;
+	default:
+		return bpf_base_func_proto(func_id, prog);
+	}
 }
 
 static bool fs_readahead_ops_is_valid_access(int off, int size,
@@ -92,10 +98,10 @@ static int bpf_fs_ra_init_member(const struct btf_type *t,
 
 static int bpf_fs_ra_init(struct btf *btf)
 {
-	bpf_fs_ra_ops_id = btf_find_by_name_kind(btf, "bpf_fs_ra_ops",
-						 BTF_KIND_STRUCT);
-	bpf_fs_ra_state_id = btf_find_by_name_kind(
-		btf, "bpf_fs_ra_state", BTF_KIND_STRUCT);
+	bpf_fs_ra_ops_id =
+		btf_find_by_name_kind(btf, "bpf_fs_ra_ops", BTF_KIND_STRUCT);
+	bpf_fs_ra_state_id =
+		btf_find_by_name_kind(btf, "bpf_fs_ra_state", BTF_KIND_STRUCT);
 
 	bpf_fs_ra_btf = btf;
 
@@ -121,7 +127,6 @@ static struct bpf_struct_ops bpf_bpf_fs_ra_ops = {
 
 static int __init bpf_fs_ra_kfunc_init(void)
 {
-	return register_bpf_struct_ops(&bpf_bpf_fs_ra_ops,
-				       bpf_fs_ra_ops);
+	return register_bpf_struct_ops(&bpf_bpf_fs_ra_ops, bpf_fs_ra_ops);
 }
 late_initcall(bpf_fs_ra_kfunc_init);
