@@ -717,6 +717,12 @@ void submit_bio_noacct_nocheck(struct bio *bio)
 		__submit_bio_noacct(bio);
 }
 
+static bool should_notsupp_bio(struct bio *bio)
+{
+	return false;
+}
+ALLOW_ERROR_INJECTION(should_notsupp_bio, ERRNO);
+
 /**
  * submit_bio_noacct - re-submit a bio to the block device layer for I/O
  * @bio:  The bio describing the location in memory and on the device.
@@ -743,6 +749,13 @@ void submit_bio_noacct(struct bio *bio)
 
 	if (should_fail_bio(bio))
 		goto end_io;
+
+	// TODO temporary; fail with ENOTSUPP instead of IOERR
+	// same place that LinnOS did their error injection
+	// don't pass in anything, bpf program should collect their own stats
+	if (should_notsupp_bio(bio))
+		goto not_supported;
+
 	bio_check_ro(bio);
 	if (!bio_flagged(bio, BIO_REMAPPED)) {
 		if (unlikely(bio_check_eod(bio)))
