@@ -706,6 +706,28 @@ readit:
 		}
 	}
 
+	// TODO temporary place to stash this
+	// TODO enforce the bdi limits
+	if (custom_bpf_fs_ra_ops) {
+		struct bpf_fs_ra_state state = {
+			.i_ino = ractl->mapping->host->i_ino,
+			.index = ra->start,
+			.size = ra->size,
+			.async_size = ra->async_size,
+			.ra_pages = ra->ra_pages,
+			.mmap_miss = ra->mmap_miss,
+			.prev_pos = ra->prev_pos,
+		};
+		int bpf_val = custom_bpf_fs_ra_ops->get_ra(&state);
+		if (bpf_val > 0) {
+			// bpf program returns the new async size, so we need to adjust both
+			// the total and async sizes
+			int adjust = bpf_val - ra->async_size;
+			ra->size += adjust;
+			ra->async_size += adjust;
+		}
+	}
+
 	ractl->_index = ra->start;
 	page_cache_ra_order(ractl, ra, order);
 }
